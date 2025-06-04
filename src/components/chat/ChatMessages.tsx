@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
@@ -7,6 +7,7 @@ import { useTranslation } from "@/lib/i18n";
 import { Check, Pencil, FileIcon } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { Message, DirectMessage, User, Attachment } from "@/types";
+import AttachmentPreview from "./AttachmentPreview";
 
 const ChatMessages = () => {
   const { t } = useTranslation();
@@ -14,6 +15,9 @@ const ChatMessages = () => {
   const { messages, directMessages, activeChannel, activeDmUser, typingUsers } =
     useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [selectedMessage, setSelectedMessage] = useState<
+    Message | DirectMessage | null
+  >(null);
 
   // Function to get user from ID
   const getUserById = (id: string): User => {
@@ -56,27 +60,8 @@ const ChatMessages = () => {
     const isVideo = attachment.type.startsWith("video/");
     const isAudio = attachment.type.startsWith("audio/");
 
-    if (isImage) {
-      return (
-        <div className="mt-2 rounded-lg overflow-hidden">
-          <img
-            src={attachment.url}
-            alt={attachment.name}
-            className="max-w-md max-h-96 object-contain"
-          />
-        </div>
-      );
-    }
-
-    if (isVideo) {
-      return (
-        <div className="mt-2 rounded-lg overflow-hidden">
-          <video controls className="max-w-md max-h-96">
-            <source src={attachment.url} type={attachment.type} />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      );
+    if (isImage || isVideo) {
+      return <AttachmentPreview attachment={attachment} />;
     }
 
     if (isAudio) {
@@ -260,7 +245,7 @@ const ChatMessages = () => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#313338] scrollbar-thin scrollbar-thumb-[#202225] scrollbar-track-transparent">
+    <div className="flex-1 overflow-y-auto bg-[#313338] scrollbar-thin">
       {displayMessages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full p-6">
           <div className="w-full max-w-md text-center">

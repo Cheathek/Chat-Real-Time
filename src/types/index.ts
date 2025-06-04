@@ -1,9 +1,9 @@
 export interface User {
   id: string;
   username: string;
-  status: "online" | "idle" | "dnd" | "offline";
-  avatar: string;
   email: string;
+  avatar: string;
+  status: 'online' | 'offline' | 'idle' | 'dnd';
   lastSeen: string;
 }
 
@@ -21,7 +21,7 @@ export interface Server {
 export interface Channel {
   id: string;
   name: string;
-  type: "text" | "voice" | "announcement";
+  type: 'text' | 'voice' | 'announcement';
   serverId: string;
   position: number;
   isPrivate: boolean;
@@ -79,20 +79,6 @@ export interface Attachment {
   size: number;
 }
 
-export interface DirectMessage extends Omit<Message, "channelId"> {
+export interface DirectMessage extends Omit<Message, 'channelId'> {
   recipientId: string;
-}
-
-export interface ChatContextType {
-  activeServer: {
-    id: string;
-    name: string;
-    channels: Channel[];
-    members: string[];
-  } | null;
-  activeChannel: Channel | null;
-  setActiveChannel: (channel: Channel | null) => void;
-  directMessageUsers: User[]; // This is important
-  setActiveDmUser: (user: User | null) => void;
-  activeDmUser: User | null;
 }
