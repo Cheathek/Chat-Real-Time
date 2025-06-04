@@ -4,7 +4,7 @@ import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
 import { mockUsers } from "@/lib/mockData";
 import { useTranslation } from "@/lib/i18n";
-import { Check, Pencil, FileIcon, Image, Music, Video } from "lucide-react";
+import { Check, Pencil, FileIcon } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { Message, DirectMessage, User, Attachment } from "@/types";
 

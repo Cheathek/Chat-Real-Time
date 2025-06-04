@@ -3,8 +3,6 @@ import { Server, Channel, User, Message, DirectMessage } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import socket from '@/lib/socket';
 import {
-  mockServers,
-  mockUsers,
   getMessages,
   getDirectMessages,
   getUserServers,

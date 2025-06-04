@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useTranslation } from '@/lib/i18n';
-import { Server } from '@/types';
 import {
   Dialog,
   DialogContent,

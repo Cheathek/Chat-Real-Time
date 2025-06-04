@@ -85,10 +85,10 @@ const AuthForms = () => {
     <div className="w-full max-w-md bg-[#36393F] p-8 rounded-lg shadow-lg">
       <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-2 mb-4 bg-[#2E3035]">
-          <TabsTrigger value="login" className="data-[state=active]:bg-[#5865F2]">
+          <TabsTrigger value="login" className="text-white data-[state=active]:bg-[#5865F2]">
             {t('common.login')}
           </TabsTrigger>
-          <TabsTrigger value="register" className="data-[state=active]:bg-[#5865F2]">
+          <TabsTrigger value="register" className="text-white data-[state=active]:bg-[#5865F2]">
             {t('common.register')}
           </TabsTrigger>
         </TabsList>
@@ -96,12 +96,12 @@ const AuthForms = () => {
         <TabsContent value="login">
           <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t('common.email')}</Label>
+              <Label htmlFor="email" className="text-gray-100">{t('common.email')}</Label>
               <Input
                 id="email"
                 type="email"
                 {...loginForm.register('email')}
-                className="bg-[#2E3035] border-[#1E1F22]"
+                className="bg-[#2E3035] border-[#1E1F22] text-white placeholder:text-gray-400"
                 placeholder="name@example.com"
               />
               {loginForm.formState.errors.email && (
@@ -111,8 +111,8 @@ const AuthForms = () => {
             
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password">{t('common.password')}</Label>
-                <a href="#" className="text-xs text-[#5865F2] hover:underline">
+                <Label htmlFor="password" className="text-gray-100">{t('common.password')}</Label>
+                <a href="#" className="text-xs text-[#5865F2] hover:underline hover:text-[#4752C4]">
                   {t('auth.forgotPassword')}
                 </a>
               </div>
@@ -120,7 +120,7 @@ const AuthForms = () => {
                 id="password"
                 type="password"
                 {...loginForm.register('password')}
-                className="bg-[#2E3035] border-[#1E1F22]"
+                className="bg-[#2E3035] border-[#1E1F22] text-white placeholder:text-gray-400"
                 placeholder="••••••••"
               />
               {loginForm.formState.errors.password && (
@@ -130,23 +130,23 @@ const AuthForms = () => {
             
             <Button 
               type="submit" 
-              className="w-full bg-[#5865F2] hover:bg-[#4752C4]" 
+              className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white" 
               disabled={isLoggingIn}
             >
               {isLoggingIn ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('common.loading')}
+                  <span className="text-white">{t('common.loading')}</span>
                 </>
               ) : t('common.login')}
             </Button>
             
-            <p className="text-sm text-center text-gray-400 mt-4">
+            <p className="text-sm text-center text-gray-300 mt-4">
               {t('auth.noAccount')} 
               <button
                 type="button"
                 onClick={() => setActiveTab('register')}
-                className="text-[#5865F2] hover:underline ml-1"
+                className="text-[#5865F2] hover:underline hover:text-[#4752C4] ml-1"
               >
                 {t('common.register')}
               </button>
@@ -157,11 +157,11 @@ const AuthForms = () => {
         <TabsContent value="register">
           <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">{t('common.username')}</Label>
+              <Label htmlFor="username" className="text-gray-100">{t('common.username')}</Label>
               <Input
                 id="username"
                 {...registerForm.register('username')}
-                className="bg-[#2E3035] border-[#1E1F22]"
+                className="bg-[#2E3035] border-[#1E1F22] text-white placeholder:text-gray-400"
                 placeholder="cooluser123"
               />
               {registerForm.formState.errors.username && (
@@ -170,12 +170,12 @@ const AuthForms = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">{t('common.email')}</Label>
+              <Label htmlFor="email" className="text-gray-100">{t('common.email')}</Label>
               <Input
                 id="email"
                 type="email"
                 {...registerForm.register('email')}
-                className="bg-[#2E3035] border-[#1E1F22]"
+                className="bg-[#2E3035] border-[#1E1F22] text-white placeholder:text-gray-400"
                 placeholder="name@example.com"
               />
               {registerForm.formState.errors.email && (
@@ -184,12 +184,12 @@ const AuthForms = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">{t('common.password')}</Label>
+              <Label htmlFor="password" className="text-gray-100">{t('common.password')}</Label>
               <Input
                 id="password"
                 type="password"
                 {...registerForm.register('password')}
-                className="bg-[#2E3035] border-[#1E1F22]"
+                className="bg-[#2E3035] border-[#1E1F22] text-white placeholder:text-gray-400"
                 placeholder="••••••••"
               />
               {registerForm.formState.errors.password && (
@@ -198,12 +198,12 @@ const AuthForms = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">{t('common.confirmPassword')}</Label>
+              <Label htmlFor="confirmPassword" className="text-gray-100">{t('common.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 {...registerForm.register('confirmPassword')}
-                className="bg-[#2E3035] border-[#1E1F22]"
+                className="bg-[#2E3035] border-[#1E1F22] text-white placeholder:text-gray-400"
                 placeholder="••••••••"
               />
               {registerForm.formState.errors.confirmPassword && (
@@ -213,23 +213,23 @@ const AuthForms = () => {
             
             <Button 
               type="submit" 
-              className="w-full bg-[#5865F2] hover:bg-[#4752C4]" 
+              className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white" 
               disabled={isRegistering}
             >
               {isRegistering ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('common.loading')}
+                  <span className="text-white">{t('common.loading')}</span>
                 </>
               ) : t('common.register')}
             </Button>
             
-            <p className="text-sm text-center text-gray-400 mt-4">
+            <p className="text-sm text-center text-gray-300 mt-4">
               {t('auth.hasAccount')} 
               <button
                 type="button"
                 onClick={() => setActiveTab('login')}
-                className="text-[#5865F2] hover:underline ml-1"
+                className="text-[#5865F2] hover:underline hover:text-[#4752C4] ml-1"
               >
                 {t('common.login')}
               </button>
