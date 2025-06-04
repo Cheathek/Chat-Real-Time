@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
@@ -15,9 +15,6 @@ const ChatMessages = () => {
   const { messages, directMessages, activeChannel, activeDmUser, typingUsers } =
     useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [selectedMessage, setSelectedMessage] = useState<
-    Message | DirectMessage | null
-  >(null);
 
   // Function to get user from ID
   const getUserById = (id: string): User => {

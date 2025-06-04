@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { X } from "lucide-react";
 import { Attachment } from "@/types";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -43,12 +42,6 @@ const AttachmentPreview = ({ attachment }: AttachmentPreviewProps) => {
 
       <Dialog open={showPreview} onOpenChange={(open) => setShowPreview(open)}>
         <DialogContent className="bg-[#36393F] text-white border-none max-w-4xl p-2">
-          <button
-            onClick={() => setShowPreview(false)}
-            className="absolute right-2 top-2 text-gray-400 hover:text-white transition-colors"
-          >
-            <X size={24} />
-          </button>
           <div className="mt-4">
             {isImage && (
               <img
