@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PlusCircle, Home } from 'lucide-react';
+import { PlusCircle, Bot } from 'lucide-react';
 import { useChat } from '@/context/ChatContext';
 import { Server } from '@/types';
 import { cn } from '@/lib/utils';
@@ -37,7 +37,7 @@ const ServerSidebar = () => {
                 !activeServer && "rounded-2xl"
               )}
             >
-              <Home size={24} />
+              <Bot size={24} />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -57,7 +57,7 @@ const ServerSidebar = () => {
                 <button
                   onClick={() => handleServerClick(server)}
                   className={cn(
-                    "w-12 h-12 rounded-full flex items-center justify-center bg-[#36393F] transition-all hover:rounded-2xl relative group",
+                    "w-12 h-12 rounded-xl flex items-center justify-center bg-[#36393F] transition-all relative group",
                     activeServer?.id === server.id ? "rounded-2xl bg-[#5865F2]" : ""
                   )}
                 >
@@ -84,7 +84,7 @@ const ServerSidebar = () => {
           <TooltipTrigger asChild>
             <button
               onClick={() => setCreateServerOpen(true)}
-              className="w-12 h-12 rounded-full flex items-center justify-center bg-[#36393F] text-[#3BA55D] hover:bg-[#3BA55D] hover:text-white transition-all hover:rounded-2xl"
+              className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#36393F] text-[#3BA55D] hover:bg-[#3BA55D] hover:text-white transition-all"
             >
               <PlusCircle size={24} />
             </button>
