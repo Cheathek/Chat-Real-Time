@@ -20,9 +20,21 @@ import { useToast } from "@/hooks/use-toast";
 
 const ChatInput = () => {
   const { toast } = useToast();
-  const { sendMessage, activeChannel, activeDmUser, startTyping, stopTyping } =
-    useChat();
-  const [message, setMessage] = useState("");
+  const {
+    message,
+    setMessage,
+    editingMessageId,
+    setEditingMessageId,
+    updateMessage,
+    originalMessage,
+    setOriginalMessage,
+    replyingTo,
+    setReplyingTo,
+    sendMessage,
+    activeChannel,
+    activeDmUser,
+  } = useChat();
+
   const [isTyping, setIsTyping] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,7 +56,6 @@ const ChatInput = () => {
   useEffect(() => {
     if (message && !isTyping) {
       setIsTyping(true);
-      startTyping();
     }
 
     if (typingTimeoutRef.current) {
@@ -54,7 +65,6 @@ const ChatInput = () => {
     typingTimeoutRef.current = setTimeout(() => {
       if (isTyping) {
         setIsTyping(false);
-        stopTyping();
       }
     }, 3000);
 
@@ -63,7 +73,7 @@ const ChatInput = () => {
         clearTimeout(typingTimeoutRef.current);
       }
     };
-  }, [message, isTyping, startTyping, stopTyping]);
+  }, [message, isTyping]);
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -92,39 +102,36 @@ const ChatInput = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!message.trim() && attachments.length === 0) return;
+    if (!message?.trim() && attachments.length === 0) return;
 
-    try {
-      const uploadedAttachments = await Promise.all(
-        attachments.map(async (file) => ({
-          id: Math.random().toString(36).substring(7),
-          name: file.name,
-          url: URL.createObjectURL(file),
-          type: file.type,
-          size: file.size,
-        }))
-      );
-
-      await sendMessage(message, uploadedAttachments);
-      setMessage("");
-      setAttachments([]);
-      setIsTyping(false);
-      stopTyping();
-      textareaRef.current?.focus();
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
+    if (editingMessageId) {
+      updateMessage(editingMessageId, message);
+      setEditingMessageId(null);
+    } else {
+      await sendMessage({
+        content: message,
+        attachments: attachments,
       });
+      setReplyingTo(null);
     }
+
+    setMessage("");
+    setAttachments([]);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null);
+    setMessage(originalMessage);
+    setOriginalMessage("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+    if (e.key === "Escape" && editingMessageId) {
+      handleCancelEdit();
     }
   };
 
@@ -138,6 +145,43 @@ const ChatInput = () => {
 
   return (
     <div className="px-2 md:px-4 py-2 md:py-3 bg-[#313338] border-t border-[#232428]">
+      {/* Show reply indicator */}
+      {replyingTo && (
+        <div className="flex items-center justify-between px-2 py-1 bg-[#3F4147] rounded-t text-xs text-gray-300">
+          <div className="flex items-center gap-2">
+            {/* <Reply className="w-4 h-4" /> */}
+            <span>Replying to {replyingTo.authorId}</span>
+          </div>
+          <button
+            onClick={() => setReplyingTo(null)}
+            className="text-gray-400 hover:text-white p-1"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {editingMessageId && (
+        <div className="flex items-center justify-between px-2 py-1 bg-[#3F4147] rounded-t text-xs text-gray-300">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center">
+              <span className="text-[#5865F2] font-medium">
+                Editing message
+              </span>
+            </div>
+            <div className="text-xs text-gray-400 break-words max-w-[300px] line-clamp-2">
+              {originalMessage || "No message content"}
+            </div>
+          </div>
+          <button
+            onClick={handleCancelEdit}
+            className="text-gray-400 hover:text-white p-1"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       {/* Attachment previews */}
       {attachments.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-2 overflow-x-auto">
@@ -174,12 +218,17 @@ const ChatInput = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder={`Message ${recipientName}`}
+          placeholder={
+            editingMessageId
+              ? "Edit your message..."
+              : `Message ${recipientName}`
+          }
           className={cn(
             "w-full resize-none bg-[#383A40] text-gray-100 rounded-md",
             "pl-10 pr-24 py-2 md:py-2.5 outline-none max-h-[200px]",
             "placeholder:text-gray-400 focus:ring-1 focus:ring-blue-500",
-            "text-sm md:text-base"
+            "text-sm md:text-base",
+            editingMessageId && "rounded-t-none"
           )}
           rows={1}
         />
