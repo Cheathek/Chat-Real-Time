@@ -69,27 +69,15 @@ const ChatMessages = () => {
 
     if (isAudio) {
       return (
-        <div className="w-full max-w-[300px] bg-[#5865F2] rounded-lg overflow-hidden border border-[#3E4147]">
-          {/* Custom audio player - now with consistent width */}
-          <div className="px-3 pb-0 p-3 w-full">
-            <CustomAudioPlayer src={attachment.url} className="w-full" />
-          </div>
-          {/* Audio info header */}
-          <div className="flex items-center px-3 py-2">
-            {/* File info - now with fixed width */}
-            <div className="flex-1 min-w-0 w-[200px]">
-              <p className="text-xs text-gray-400 mt-0.5 truncate">
-                {" "}
-                {/* Added truncate */}
-                {Math.round(attachment.size / 1024)} KB • Audio
-              </p>
-              {" "}
-              {/* Added fixed width */}
-              <p className="text-sm font-medium text-[#DCDDDE] truncate">
-                {attachment.name.replace(".m4a", "").replace(/_/g, " ")}
-              </p>
-            </div>
-          </div>
+        <div className="w-full max-w-[350px]">
+          {" "}
+          {/* Added max-width constraint */}
+          <CustomAudioPlayer
+            src={attachment.url}
+            title={attachment.name}
+            fileSize={attachment.size}
+            className="w-full"
+          />
         </div>
       );
     }
