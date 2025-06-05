@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useTranslation } from '@/lib/i18n';
 import {
   Dialog,
   DialogContent,
@@ -18,7 +17,6 @@ interface CreateServerModalProps {
 }
 
 const CreateServerModal = ({ open, onOpenChange }: CreateServerModalProps) => {
-  const { t } = useTranslation();
   const [serverName, setServerName] = useState('');
   const [serverIcon, setServerIcon] = useState('🎮');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +46,7 @@ const CreateServerModal = ({ open, onOpenChange }: CreateServerModalProps) => {
       <DialogContent className="bg-[#313338] text-white border-[#232428] max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
-            {t('servers.createServer')}
+            Create a Server
           </DialogTitle>
           <DialogDescription className="text-gray-400">
             Your server is where you and your friends hang out. Make yours and start talking.
@@ -57,7 +55,7 @@ const CreateServerModal = ({ open, onOpenChange }: CreateServerModalProps) => {
         
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="server-icon">{t('servers.serverIcon')}</Label>
+            <Label htmlFor="server-icon">Server Icons</Label>
             <div className="grid grid-cols-6 gap-2">
               {icons.map((icon) => (
                 <button
@@ -74,7 +72,7 @@ const CreateServerModal = ({ open, onOpenChange }: CreateServerModalProps) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="server-name">{t('servers.serverName')}</Label>
+            <Label htmlFor="server-name">Server Name</Label>
             <Input
               id="server-name"
               value={serverName}
@@ -91,14 +89,14 @@ const CreateServerModal = ({ open, onOpenChange }: CreateServerModalProps) => {
             onClick={() => onOpenChange(false)}
             className="bg-transparent border-[#232428] hover:bg-[#36393F] text-white"
           >
-            {t('common.cancel')}
+            Cancel
           </Button>
           <Button 
             onClick={handleCreateServer}
             disabled={!serverName.trim() || isSubmitting}
             className="bg-[#5865F2] hover:bg-[#4752C4]"
           >
-            {isSubmitting ? 'Creating...' : t('common.create')}
+            {isSubmitting ? 'Creating...' : 'Create Server'}
           </Button>
         </DialogFooter>
       </DialogContent>

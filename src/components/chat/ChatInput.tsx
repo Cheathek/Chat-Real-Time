@@ -1,21 +1,28 @@
-import { useState, useRef, useEffect, ChangeEvent } from 'react';
-import { Smile, Plus, Gift, AArrowDown as GIF, Paperclip, Send } from 'lucide-react';
-import { useChat } from '@/context/ChatContext';
-import { useTranslation } from '@/lib/i18n';
-import { cn } from '@/lib/utils';
+import { useState, useRef, useEffect, ChangeEvent } from "react";
+import {
+  Smile,
+  PlusCircle,
+  Gift,
+  AArrowDown as GIF,
+  Paperclip,
+  SendHorizonal,
+  X,
+} from "lucide-react";
+import { useChat } from "@/context/ChatContext";
+import { cn } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { useToast } from '@/hooks/use-toast';
+} from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 const ChatInput = () => {
-  const { t } = useTranslation();
   const { toast } = useToast();
-  const { sendMessage, activeChannel, activeDmUser, startTyping, stopTyping } = useChat();
-  const [message, setMessage] = useState('');
+  const { sendMessage, activeChannel, activeDmUser, startTyping, stopTyping } =
+    useChat();
+  const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -25,8 +32,11 @@ const ChatInput = () => {
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        200
+      )}px`;
     }
   }, [message]);
 
@@ -37,12 +47,10 @@ const ChatInput = () => {
       startTyping();
     }
 
-    // Clear previous timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
-    // Set new timeout
     typingTimeoutRef.current = setTimeout(() => {
       if (isTyping) {
         setIsTyping(false);
@@ -57,73 +65,64 @@ const ChatInput = () => {
     };
   }, [message, isTyping, startTyping, stopTyping]);
 
-  // Handle file selection
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     const maxSize = 50 * 1024 * 1024; // 50MB limit
 
-    const validFiles = files.filter(file => {
+    const validFiles = files.filter((file) => {
       if (file.size > maxSize) {
         toast({
           title: "File too large",
           description: `${file.name} exceeds the 50MB limit`,
-          variant: "destructive"
+          variant: "destructive",
         });
         return false;
       }
       return true;
     });
 
-    setAttachments(prev => [...prev, ...validFiles]);
+    setAttachments((prev) => [...prev, ...validFiles]);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
-  // Remove attachment
   const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Handle send message
   const handleSendMessage = async () => {
     if (!message.trim() && attachments.length === 0) return;
-    
+
     try {
-      // Convert files to attachments
       const uploadedAttachments = await Promise.all(
-        attachments.map(async file => ({
+        attachments.map(async (file) => ({
           id: Math.random().toString(36).substring(7),
           name: file.name,
-          url: URL.createObjectURL(file), // In a real app, this would be a server upload
+          url: URL.createObjectURL(file),
           type: file.type,
-          size: file.size
+          size: file.size,
         }))
       );
 
       await sendMessage(message, uploadedAttachments);
-      setMessage('');
+      setMessage("");
       setAttachments([]);
-      
-      // Reset typing status
       setIsTyping(false);
       stopTyping();
-      
-      // Focus textarea
       textareaRef.current?.focus();
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
       toast({
         title: "Error",
         description: "Failed to send message. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
-  // Handle key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -133,51 +132,60 @@ const ChatInput = () => {
     return null;
   }
 
-  const recipientName = activeDmUser ? activeDmUser.username : `#${activeChannel?.name}`;
+  const recipientName = activeDmUser
+    ? activeDmUser.username
+    : `#${activeChannel?.name}`;
 
   return (
-    <div className="px-4 py-3 bg-[#313338] border-t border-[#232428]">
+    <div className="px-2 md:px-4 py-2 md:py-3 bg-[#313338] border-t border-[#232428]">
       {/* Attachment previews */}
       {attachments.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2">
+        <div className="flex flex-wrap gap-2 mb-2 overflow-x-auto">
           {attachments.map((file, index) => (
             <div
               key={index}
-              className="relative group bg-[#2E3035] rounded p-2 flex items-center gap-2"
+              className="relative group bg-[#2E3035] rounded p-2 flex items-center gap-2 max-w-full"
             >
-              <span className="text-sm truncate max-w-[200px]">{file.name}</span>
+              <span className="text-sm truncate max-w-[120px] md:max-w-[200px]">
+                {file.name}
+              </span>
               <button
                 onClick={() => removeAttachment(index)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-white text-sm md:text-base"
               >
-                ×
+                <X size={16} className="w-2 h-2 md:w-3 md:h-3" />
               </button>
             </div>
           ))}
         </div>
       )}
 
-      <div className="relative">
-        <div className="absolute bottom-2 left-2 flex items-center space-x-1">
-          <button className="text-gray-400 hover:text-gray-100 p-2 rounded-full hover:bg-[#36393F]">
-            <Plus size={20} />
+      <div className="relative flex items-center">
+        {/* Left side buttons */}
+        <div className="absolute left-2 flex items-center space-x-1">
+          <button className="text-gray-400 hover:text-gray-100 p-1 md:p-1.5 rounded-full hover:bg-[#36393F]">
+            <PlusCircle size={18} className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
-        
+
+        {/* Textarea */}
         <textarea
           ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder={`${t('chat.typeMessage')} ${recipientName}`}
+          placeholder={`Message ${recipientName}`}
           className={cn(
-            "w-full resize-none bg-[#383A40] text-gray-100 rounded-md px-12 py-2.5 outline-none max-h-[200px]",
-            "placeholder:text-gray-400 focus:ring-1 focus:ring-blue-500"
+            "w-full resize-none bg-[#383A40] text-gray-100 rounded-md",
+            "pl-10 pr-24 py-2 md:py-2.5 outline-none max-h-[200px]",
+            "placeholder:text-gray-400 focus:ring-1 focus:ring-blue-500",
+            "text-sm md:text-base"
           )}
           rows={1}
         />
-        
-        <div className="absolute bottom-2 right-2 flex items-center space-x-2">
+
+        {/* Right side icons */}
+        <div className="absolute right-2 flex items-center space-x-1 md:space-x-2">
           <input
             ref={fileInputRef}
             type="file"
@@ -185,60 +193,67 @@ const ChatInput = () => {
             onChange={handleFileSelect}
             className="hidden"
           />
-          
+
+          {/* Mobile: Only show essential icons */}
+          <div className="hidden sm:flex items-center space-x-1 md:space-x-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-gray-400 hover:text-gray-100 p-1 rounded-full hover:bg-[#36393F]">
+                    <Gift size={18} className="w-4 h-4 md:w-5 md:h-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Nitro Gift</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-gray-400 hover:text-gray-100 p-1 rounded-full hover:bg-[#36393F]">
+                    <GIF size={18} className="w-4 h-4 md:w-5 md:h-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top">GIF Picker</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          {/* Always show these icons */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="text-gray-400 hover:text-gray-100 p-1 rounded-full hover:bg-[#36393F]">
-                  <Gift size={18} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top">Nitro Gift</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="text-gray-400 hover:text-gray-100 p-1 rounded-full hover:bg-[#36393F]">
-                  <GIF size={18} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top">GIF Picker</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
+                <button
                   onClick={() => fileInputRef.current?.click()}
                   className="text-gray-400 hover:text-gray-100 p-1 rounded-full hover:bg-[#36393F]"
                 >
-                  <Paperclip size={18} />
+                  <Paperclip size={18} className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top">Attach File</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button className="text-gray-400 hover:text-gray-100 p-1 rounded-full hover:bg-[#36393F]">
-                  <Smile size={18} />
+                  <Smile size={18} className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top">Emoji</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          
+
           {(message.trim().length > 0 || attachments.length > 0) && (
-            <button 
+            <button
               onClick={handleSendMessage}
-              className="text-white bg-[#5865F2] p-1 rounded-full hover:bg-[#4752C4] transition-colors"
+              className="text-[#5865F2] hover:text-[#4752C4] p-1 md:p-1.5 rounded-full transition-colors"
             >
-              <Send size={18} />
+              <SendHorizonal
+                size={18}
+                className="w-4 h-4 md:w-5 md:h-5 fill-current"
+              />
             </button>
           )}
         </div>

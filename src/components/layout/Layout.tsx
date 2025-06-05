@@ -1,9 +1,8 @@
-import { ReactNode } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import ServerSidebar from '@/components/navigation/ServerSidebar';
-import ChannelSidebar from '@/components/navigation/ChannelSidebar';
-import MobileNavigation from '@/components/navigation/MobileNavigation';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { ReactNode } from "react";
+import { useAuth } from "@/context/AuthContext";
+import ServerSidebar from "@/components/navigation/ServerSidebar";
+import ChannelSidebar from "@/components/navigation/ChannelSidebar";
+import MobileNavigation from "@/components/navigation/MobileNavigation";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,9 +14,6 @@ const Layout = ({ children }: LayoutProps) => {
   if (!isAuthenticated) {
     return (
       <div className="h-screen bg-[#313338] flex flex-col items-center justify-center p-4">
-        <div className="absolute top-4 right-4">
-          <LanguageSwitcher />
-        </div>
         {children}
       </div>
     );
@@ -34,12 +30,7 @@ const Layout = ({ children }: LayoutProps) => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="absolute top-4 right-4 z-50 md:hidden">
-          <LanguageSwitcher />
-        </div>
-        {children}
-      </div>
+      <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
 
       {/* Mobile navigation - visible only on mobile */}
       <div className="md:hidden">

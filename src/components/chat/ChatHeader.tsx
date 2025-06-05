@@ -1,10 +1,8 @@
 import { Hash, Users, Bell, Pin, Search, HelpCircle } from 'lucide-react';
 import { useChat } from '@/context/ChatContext';
-import { useTranslation } from '@/lib/i18n';
 import UserAvatar from '@/components/ui/UserAvatar';
 
 const ChatHeader = () => {
-  const { t } = useTranslation();
   const { activeChannel, activeDmUser } = useChat();
 
   if (!activeChannel && !activeDmUser) {
@@ -12,7 +10,7 @@ const ChatHeader = () => {
       <div className="h-12 px-3 flex items-center justify-between border-b border-[#232428] bg-[#313338]">
         <div className="flex items-center">
           <Users className="w-5 h-5 text-gray-400 mr-2" />
-          <h3 className="font-semibold">{t('directMessages.title')}</h3>
+          <h3 className="font-semibold">Chat Message</h3>
         </div>
 
         <div className="flex items-center space-x-2">

@@ -1,23 +1,42 @@
-import { useState } from 'react';
-import { Hash, Settings, User, UserPlus, Plus, Headphones, LogOut } from 'lucide-react';
-import { useChat } from '@/context/ChatContext';
-import { useAuth } from '@/context/AuthContext';
-import { cn } from '@/lib/utils';
-import { Channel, User as UserType } from '@/types';
-import { Separator } from '@/components/ui/separator';
-import { useTranslation } from '@/lib/i18n';
-import UserAvatar from '@/components/ui/UserAvatar';
-import CreateChannelModal from '@/components/modals/CreateChannelModal';
+import { useState } from "react";
+import {
+  Hash,
+  Settings,
+  User,
+  UserPlus,
+  Plus,
+  Headphones,
+  LogOut,
+} from "lucide-react";
+import { useChat } from "@/context/ChatContext";
+import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
+import { Channel, User as UserType } from "@/types";
+import { Separator } from "@/components/ui/separator";
+import UserAvatar from "@/components/ui/UserAvatar";
+import CreateChannelModal from "@/components/modals/CreateChannelModal";
+
+const getStatusText = (status: string): string => {
+  switch (status) {
+    case "online":
+      return "Online";
+    case "idle":
+      return "Idle";
+    case "dnd":
+      return "Do Not Disturb";
+    default:
+      return "Offline";
+  }
+};
 
 const ChannelSidebar = () => {
-  const { t } = useTranslation();
-  const { 
-    activeServer, 
-    activeChannel, 
-    setActiveChannel, 
-    directMessageUsers, 
-    setActiveDmUser, 
-    activeDmUser 
+  const {
+    activeServer,
+    activeChannel,
+    setActiveChannel,
+    directMessageUsers,
+    setActiveDmUser,
+    activeDmUser,
   } = useChat();
   const { user, logout } = useAuth();
   const [createChannelOpen, setCreateChannelOpen] = useState(false);
@@ -36,12 +55,14 @@ const ChannelSidebar = () => {
     return (
       <div className="flex flex-col h-full">
         <div className="p-4 shadow-sm border-b border-[#232428]">
-          <h1 className="font-bold text-white">{t('directMessages.title')}</h1>
+          <h1 className="font-bold text-white">Direct Messages</h1>
         </div>
 
         <div className="p-3 flex-1 overflow-y-auto scrollbar-thin">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase">{t('directMessages.title')}</h2>
+            <h2 className="text-xs font-semibold text-gray-400 uppercase">
+              Direct Messages
+            </h2>
             <button className="text-gray-400 hover:text-white">
               <UserPlus size={16} />
             </button>
@@ -60,20 +81,26 @@ const ChannelSidebar = () => {
                 >
                   <UserAvatar user={dmUser} />
                   <span className="truncate">{dmUser.username}</span>
-                  <span className={cn(
-                    "ml-auto w-2 h-2 rounded-full",
-                    dmUser.status === 'online' ? "bg-green-500" : 
-                    dmUser.status === 'idle' ? "bg-yellow-500" : 
-                    dmUser.status === 'dnd' ? "bg-red-500" : "bg-gray-500"
-                  )} />
+                  <span
+                    className={cn(
+                      "ml-auto w-2 h-2 rounded-full",
+                      dmUser.status === "online"
+                        ? "bg-green-500"
+                        : dmUser.status === "idle"
+                        ? "bg-yellow-500"
+                        : dmUser.status === "dnd"
+                        ? "bg-red-500"
+                        : "bg-gray-500"
+                    )}
+                  />
                 </button>
               ))}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-4 text-gray-400">
               <User size={40} className="mb-2 opacity-50" />
-              <p>{t('directMessages.noConversations')}</p>
-              <p className="text-xs">{t('directMessages.startConversation')}</p>
+              <p>No conversations yet</p>
+              <p className="text-xs">Start a conversation with someone!</p>
             </div>
           )}
         </div>
@@ -86,10 +113,13 @@ const ChannelSidebar = () => {
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{user.username}</p>
                 <p className="text-xs text-gray-400 truncate">
-                  {t(`chat.${user.status}`)}
+                  {getStatusText(user.status)}
                 </p>
               </div>
-              <button onClick={logout} className="text-gray-400 hover:text-white p-1">
+              <button
+                onClick={logout}
+                className="text-gray-400 hover:text-white p-1"
+              >
                 <LogOut size={18} />
               </button>
               <button className="text-gray-400 hover:text-white p-1">
@@ -115,8 +145,10 @@ const ChannelSidebar = () => {
         {activeServer && (
           <>
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xs font-semibold text-gray-400 uppercase">{t('servers.channels')}</h2>
-              <button 
+              <h2 className="text-xs font-semibold text-gray-400 uppercase">
+                Channels
+              </h2>
+              <button
                 onClick={() => setCreateChannelOpen(true)}
                 className="text-gray-400 hover:text-white"
               >
@@ -134,7 +166,7 @@ const ChannelSidebar = () => {
                     activeChannel?.id === channel.id ? "bg-[#36393F]" : ""
                   )}
                 >
-                  {channel.type === 'text' ? (
+                  {channel.type === "text" ? (
                     <Hash size={18} className="text-gray-400" />
                   ) : (
                     <Headphones size={18} className="text-gray-400" />
@@ -147,7 +179,9 @@ const ChannelSidebar = () => {
             <Separator className="my-3 bg-[#232428]" />
 
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xs font-semibold text-gray-400 uppercase">{t('servers.members')}</h2>
+              <h2 className="text-xs font-semibold text-gray-400 uppercase">
+                Mambers
+              </h2>
               <button className="text-gray-400 hover:text-white">
                 <UserPlus size={16} />
               </button>
@@ -155,15 +189,17 @@ const ChannelSidebar = () => {
 
             <div className="space-y-1">
               {activeServer.members.map((memberId) => {
-                const member = directMessageUsers.find(u => u.id === memberId) || {
+                const member = directMessageUsers.find(
+                  (u) => u.id === memberId
+                ) || {
                   id: memberId,
                   username: `User ${memberId}`,
-                  status: 'offline',
-                  avatar: '',
-                  email: '',
-                  lastSeen: ''
+                  status: "offline",
+                  avatar: "",
+                  email: "",
+                  lastSeen: "",
                 };
-                
+
                 return (
                   <div
                     key={member.id}
@@ -171,12 +207,18 @@ const ChannelSidebar = () => {
                   >
                     <UserAvatar user={member} />
                     <span className="truncate">{member.username}</span>
-                    <span className={cn(
-                      "ml-auto w-2 h-2 rounded-full",
-                      member.status === 'online' ? "bg-green-500" : 
-                      member.status === 'idle' ? "bg-yellow-500" : 
-                      member.status === 'dnd' ? "bg-red-500" : "bg-gray-500"
-                    )} />
+                    <span
+                      className={cn(
+                        "ml-auto w-2 h-2 rounded-full",
+                        member.status === "online"
+                          ? "bg-green-500"
+                          : member.status === "idle"
+                          ? "bg-yellow-500"
+                          : member.status === "dnd"
+                          ? "bg-red-500"
+                          : "bg-gray-500"
+                      )}
+                    />
                   </div>
                 );
               })}
@@ -193,10 +235,13 @@ const ChannelSidebar = () => {
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{user.username}</p>
               <p className="text-xs text-gray-400 truncate">
-                {t(`chat.${user.status}`)}
+                {getStatusText(user.status)}
               </p>
             </div>
-            <button onClick={logout} className="text-gray-400 hover:text-white p-1">
+            <button
+              onClick={logout}
+              className="text-gray-400 hover:text-white p-1"
+            >
               <LogOut size={18} />
             </button>
             <button className="text-gray-400 hover:text-white p-1">
@@ -206,10 +251,10 @@ const ChannelSidebar = () => {
         )}
       </div>
 
-      <CreateChannelModal 
-        open={createChannelOpen} 
-        onOpenChange={setCreateChannelOpen} 
-        serverId={activeServer?.id || ''} 
+      <CreateChannelModal
+        open={createChannelOpen}
+        onOpenChange={setCreateChannelOpen}
+        serverId={activeServer?.id || ""}
       />
     </div>
   );

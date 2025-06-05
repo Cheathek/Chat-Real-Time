@@ -3,14 +3,12 @@ import { format } from "date-fns";
 import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
 import { mockUsers } from "@/lib/mockData";
-import { useTranslation } from "@/lib/i18n";
 import { Check, Pencil, FileIcon } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { Message, DirectMessage, User, Attachment } from "@/types";
 import AttachmentPreview from "./AttachmentPreview";
 
 const ChatMessages = () => {
-  const { t } = useTranslation();
   const { user } = useAuth();
   const { messages, directMessages, activeChannel, activeDmUser, typingUsers } =
     useChat();
@@ -193,7 +191,7 @@ const ChatMessages = () => {
                 }`}
               >
                 <Check size={12} className="mr-1" />
-                <span className="text-xs">{t("chat.read")}</span>
+                <span className="text-xs">Seen</span>
               </div>
             )}
         </div>
@@ -211,13 +209,9 @@ const ChatMessages = () => {
     if (currentTypingUsers.length === 0) return null;
 
     const names = currentTypingUsers.map((user) => user.username).join(", ");
-
     return (
       <div className="px-4 py-2 text-gray-400 text-sm italic text-right">
-        {names}{" "}
-        {currentTypingUsers.length === 1
-          ? t("chat.typing")
-          : t("chat.areTyping")}
+        {names} {currentTypingUsers.length === 1 ? "is typing" : "are typing"}
         <span className="inline-block animate-pulse">...</span>
       </div>
     );
@@ -230,11 +224,9 @@ const ChatMessages = () => {
     return (
       <div className="flex-1 overflow-y-auto bg-[#313338] flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-md text-center">
-          <h3 className="text-xl font-bold mb-2">
-            {t("directMessages.title")}
-          </h3>
+          <h3 className="text-xl font-bold mb-2">Direct Messages</h3>
           <p className="text-gray-400 mb-4">
-            {t("directMessages.startConversation")}
+            Select a friend to start a conversation
           </p>
         </div>
       </div>
@@ -248,10 +240,12 @@ const ChatMessages = () => {
           <div className="w-full max-w-md text-center">
             <h3 className="text-xl font-bold mb-2">
               {activeDmUser
-                ? `${t("chat.startConversationWith")} ${activeDmUser.username}`
-                : `${t("chat.welcome")} #${activeChannel?.name}`}
+                ? `Start a conversation with ${activeDmUser.username}`
+                : `Welcome to #${activeChannel?.name}`}
             </h3>
-            <p className="text-gray-400">{t("chat.noMessages")}</p>
+            <p className="text-gray-400">
+              No messages here yet. Start the conversation!
+            </p>
           </div>
         </div>
       ) : (
