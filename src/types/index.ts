@@ -73,6 +73,7 @@ export interface MessageReaction {
 }
 
 export interface Attachment {
+  duration: number;
   id: string;
   name: string;
   url: string;

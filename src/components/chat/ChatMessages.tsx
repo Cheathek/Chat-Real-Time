@@ -8,6 +8,7 @@ import UserAvatar from "@/components/ui/UserAvatar";
 import { Message, DirectMessage, User, Attachment } from "@/types";
 import AttachmentPreview from "./AttachmentPreview";
 import MessageContextMenu from "./MessageContextMenu";
+import CustomAudioPlayer from "./CustomAudioPlayer";
 
 const ChatMessages = () => {
   const { user } = useAuth();
@@ -68,29 +69,55 @@ const ChatMessages = () => {
 
     if (isAudio) {
       return (
-        <audio controls className="w-full max-w-[240px]">
-          <source src={attachment.url} type={attachment.type} />
-        </audio>
+        <div className="w-full max-w-[300px] bg-[#5865F2] rounded-lg overflow-hidden border border-[#3E4147]">
+          {/* Custom audio player - now with consistent width */}
+          <div className="px-3 pb-0 p-3 w-full">
+            <CustomAudioPlayer src={attachment.url} className="w-full" />
+          </div>
+          {/* Audio info header */}
+          <div className="flex items-center px-3 py-2">
+            {/* File info - now with fixed width */}
+            <div className="flex-1 min-w-0 w-[200px]">
+              <p className="text-xs text-gray-400 mt-0.5 truncate">
+                {" "}
+                {/* Added truncate */}
+                {Math.round(attachment.size / 1024)} KB • Audio
+              </p>
+              {" "}
+              {/* Added fixed width */}
+              <p className="text-sm font-medium text-[#DCDDDE] truncate">
+                {attachment.name.replace(".m4a", "").replace(/_/g, " ")}
+              </p>
+            </div>
+          </div>
+        </div>
       );
     }
-
     // For other file types
     return (
-      <div className="flex items-center gap-2 text-blue-500 hover:underline">
-        <FileIcon size={16} />
-        <a href={attachment.url} target="_blank" rel="noopener noreferrer">
+      <div className="flex items-center gap-2 p-2 bg-[#2E3035] rounded-lg">
+        <FileIcon size={16} className="text-[#5865F2]" />
+        <a
+          href={attachment.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-[#DCDDDE] hover:underline truncate"
+        >
           {attachment.name}
         </a>
       </div>
     );
   };
 
-  const renderMessage = (
-    message: Message | DirectMessage,
-    isDm: boolean = false // Renamed for clarity and used below
-  ) => {
+  const renderMessage = (message: Message | DirectMessage) => {
     const author = getUserById(message.authorId);
     const isOwnMessage = user?.id === message.authorId;
+    const hasMediaAttachment = message.attachments.some(
+      (attachment) =>
+        attachment.type.startsWith("image/") ||
+        attachment.type.startsWith("video/") ||
+        attachment.type.startsWith("audio/")
+    );
 
     return (
       <MessageContextMenu message={message}>
@@ -106,21 +133,18 @@ const ChatMessages = () => {
             <UserAvatar user={author} size="sm" />
           </div>
 
-          {/* Message bubble container - removed background */}
           <div
             className={`flex-1 min-w-0 flex ${
               isOwnMessage ? "justify-end" : ""
             }`}
           >
-            <div className="max-w-[75%] px-2 py-1.5">
-              {/* Display read receipts only for DMs */}
-              {isDm &&
-                "readBy" in message &&
-                "recipientId" in message &&
-                message.readBy.includes(message.recipientId) && (
-                  <div className="text-xs text-gray-400 mt-1">Seen</div>
-                )}
-
+            {/* Main message bubble container */}
+            <div
+              className={`max-w-[75%] px-2 py-1.5 ${
+                !hasMediaAttachment && // Only apply background if no media attachments
+                (isOwnMessage ? "bg-[#5865F2]" : "bg-[#40444B]")
+              } rounded-lg`}
+            >
               {/* Username for others' messages */}
               {!isOwnMessage && (
                 <div className="text-sm font-semibold text-[#DCDDDE] mb-1">
@@ -131,7 +155,7 @@ const ChatMessages = () => {
               {/* Message content */}
               <div className="text-sm text-[#DCDDDE]">{message.content}</div>
 
-              {/* Attachments - without background */}
+              {/* Attachments - rendered without background */}
               {message.attachments.length > 0 && (
                 <div className="mt-2 space-y-2">
                   {message.attachments.map((attachment, index) => (
@@ -238,7 +262,7 @@ const ChatMessages = () => {
         </div>
       ) : (
         <>
-          {displayMessages.map((msg) => renderMessage(msg, !!activeDmUser))}
+          {displayMessages.map((msg) => renderMessage(msg))}
           {renderTypingIndicator()}
           <div ref={messagesEndRef} />
         </>

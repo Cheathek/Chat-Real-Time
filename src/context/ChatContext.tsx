@@ -205,6 +205,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           name: file.name,
           type: file.type,
           size: file.size,
+          duration: file.type.startsWith('video/') || file.type.startsWith('audio/') ? 0 : 0, // Add default duration
         };
       })
     );
