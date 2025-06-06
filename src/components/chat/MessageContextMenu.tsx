@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Pencil, Trash, Reply, Copy } from "lucide-react";
+import { Pencil, Trash, Reply, Copy, MoreVertical } from "lucide-react";
 import { Message, DirectMessage } from "@/types";
 import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
@@ -16,6 +16,7 @@ interface MessageContextMenuProps {
 }
 
 const MessageContextMenu = ({ message, children }: MessageContextMenuProps) => {
+  const [, setIsOpen] = useState(false);
   const { user } = useAuth();
   const {
     setEditingMessageId,
@@ -47,9 +48,32 @@ const MessageContextMenu = ({ message, children }: MessageContextMenuProps) => {
     navigator.clipboard.writeText(message.content);
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (window.innerWidth <= 768) {
+      e.preventDefault();
+      setIsOpen(true);
+    }
+  };
+
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+    <ContextMenu onOpenChange={setIsOpen}>
+      <ContextMenuTrigger asChild>
+        <div onClick={handleClick} className="relative">
+          {children}
+          <button
+            className="absolute right-2 top-2 p-1.5 rounded-full 
+              bg-[#2f3136] text-gray-400 opacity-0 
+              group-hover:opacity-100 md:hidden 
+              hover:bg-[#36393f] hover:text-gray-200"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(true);
+            }}
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+        </div>
+      </ContextMenuTrigger>
       <ContextMenuContent className="w-52 bg-[#18191c] border-[#2f3136] text-gray-100">
         <ContextMenuItem
           className="hover:bg-[#5865F2] focus:bg-[#5865F2] cursor-pointer"

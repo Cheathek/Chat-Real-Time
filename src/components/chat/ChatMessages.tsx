@@ -48,7 +48,9 @@ const ChatMessages = () => {
           <img
             src={attachment.url}
             alt={attachment.name}
-            className="max-w-[400px] max-h-[300px] rounded-lg object-contain cursor-pointer hover:opacity-90 transition-opacity"
+            className="max-w-full sm:max-w-[400px] max-h-[300px] rounded-lg object-contain cursor-pointer 
+            hover:opacity-90 transition-opacity"
+            loading="lazy"
           />
         </AttachmentPreview>
       );
@@ -59,9 +61,12 @@ const ChatMessages = () => {
         <AttachmentPreview attachment={attachment}>
           <video
             controls
-            className="max-w-[400px] max-h-[300px] rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+            preload="metadata"
+            className="max-w-full sm:max-w-[400px] max-h-[300px] rounded-lg cursor-pointer 
+            hover:opacity-90 transition-opacity"
           >
             <source src={attachment.url} type={attachment.type} />
+            Your browser does not support the video tag.
           </video>
         </AttachmentPreview>
       );
@@ -69,9 +74,7 @@ const ChatMessages = () => {
 
     if (isAudio) {
       return (
-        <div className="w-full max-w-[350px]">
-          {" "}
-          {/* Added max-width constraint */}
+        <div className="w-full max-w-[350px] min-w-[200px]">
           <CustomAudioPlayer
             src={attachment.url}
             title={attachment.name}
@@ -83,8 +86,8 @@ const ChatMessages = () => {
     }
     // For other file types
     return (
-      <div className="flex items-center gap-2 p-2 bg-[#2E3035] rounded-lg">
-        <FileIcon size={16} className="text-[#5865F2]" />
+      <div className="flex items-center gap-2 p-2 bg-[#2E3035] rounded-lg max-w-full sm:max-w-[350px]">
+        <FileIcon size={16} className="text-[#5865F2] flex-shrink-0" />
         <a
           href={attachment.url}
           target="_blank"
@@ -147,13 +150,13 @@ const ChatMessages = () => {
               isOwnMessage ? "justify-end" : ""
             }`}
           >
-            <div className="relative max-w-[65%]">
+            <div className="relative max-w-[85%] sm:max-w-[75%] md:max-w-[65%]">
               {/* Main Message Bubble with integrated reply */}
               <div
                 className={`${
                   !hasMediaAttachment &&
                   (isOwnMessage ? "bg-[#5865F2]" : "bg-[#40444B]")
-                } rounded-lg pt-2`}
+                } rounded-lg pt-2 overflow-hidden`}
               >
                 {/* Reply Preview Inside Message Bubble */}
                 {repliedMessage && (
@@ -161,15 +164,15 @@ const ChatMessages = () => {
                     onClick={() =>
                       message.replyTo?.id && scrollToMessage(message.replyTo.id)
                     }
-                    className="flex mx-2 mb-2 cursor-pointer group"
+                    className="flex mx-2 mb-2 cursor-pointer group max-w-full"
                   >
-                    <div className="w-0.5 bg-[#00a8fc] rounded-l" />
-                    <div className="flex-1 bg-[#1E1F22] bg-opacity-70 px-2 py-1 rounded-r hover:bg-opacity-90 transition-colors">
-                      <div className="flex flex-col">
-                        <span className="text-[#00a8fc] text-xs font-medium">
+                    <div className="w-0.5 bg-[#00a8fc] rounded-l flex-shrink-0" />
+                    <div className="flex-1 bg-[#1E1F22] bg-opacity-70 px-2 py-1.5 rounded-r hover:bg-opacity-90 transition-colors min-w-0">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[#00a8fc] text-xs font-medium truncate">
                           {repliedMessage.author.username}
                         </span>
-                        <span className="text-gray-400 text-xs truncate">
+                        <span className="text-gray-400 text-xs line-clamp-1">
                           {repliedMessage.content || "Attachment"}
                         </span>
                       </div>
@@ -191,9 +194,9 @@ const ChatMessages = () => {
 
                   {/* Attachments */}
                   {message.attachments.length > 0 && (
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-1">
                       {message.attachments.map((attachment, index) => (
-                        <div key={index} className="inline-block">
+                        <div key={index} className="w-full">
                           {renderAttachment(attachment)}
                         </div>
                       ))}
@@ -203,7 +206,7 @@ const ChatMessages = () => {
                   {/* Timestamp */}
                   <div className="text-xs text-gray-400 mt-1 text-right">
                     {message.edited && (
-                      <span className="text-gray-500 mr-1">(edited)</span>
+                      <span className="text-white-500 mr-1">(edited)</span>
                     )}
                     {formatMessageTime(message.timestamp)}
                   </div>
