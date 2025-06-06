@@ -27,7 +27,10 @@ interface ChatContextType {
   typingUsers: Record<string, string[]>;
 
   setMessage: (content: string) => void;
-  sendMessage: (message: { content: string; attachments?: File[] }) => Promise<void>;
+  sendMessage: (message: {
+    content: string;
+    attachments?: File[];
+  }) => Promise<void>;
   setEditingMessageId: (id: string | null) => void;
   setOriginalMessage: (content: string) => void;
   setActiveServer: (server: Server | null) => void;
@@ -41,7 +44,12 @@ interface ChatContextType {
   originalMessage: string;
   message: string;
 
-  replyingTo: Message | DirectMessage | null;
+  replyingTo: {
+    id: string;
+    username: string;
+    content: string;
+    authorId: string;
+  } | null;
   setReplyingTo: (message: Message | DirectMessage | null) => void;
   deleteMessage: (messageId: string) => void;
 }
@@ -63,9 +71,25 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [message, setMessage] = useState<string>(""); // Initialize as empty string
   const [originalMessage, setOriginalMessage] = useState<string>("");
-  const [replyingTo, setReplyingTo] = useState<Message | DirectMessage | null>(
-    null
-  );
+  const [replyingTo, setInternalReplyingTo] = useState<{
+    id: string;
+    username: string;
+    content: string;
+    authorId: string;
+  } | null>(null);
+
+  const setReplyingTo = (message: Message | DirectMessage | null) => {
+    if (!message) {
+      setInternalReplyingTo(null);
+      return;
+    }
+    setInternalReplyingTo({
+      id: message.id,
+      username: 'username', // You need to get the username from your user data
+      content: message.content,
+      authorId: message.authorId
+    });
+  };
 
   // Update socket's user when auth state changes
   useEffect(() => {
@@ -190,7 +214,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   }, [isAuthenticated, activeChannel, activeDmUser, user]);
 
   // Send message function
-  const sendMessage = async (message: { content: string; attachments?: File[] }) => {
+  const sendMessage = async (message: {
+    content: string;
+    attachments?: File[];
+  }) => {
     const attachments = message.attachments || [];
     if (!message.content?.trim() && attachments.length === 0) return;
 
@@ -205,7 +232,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           name: file.name,
           type: file.type,
           size: file.size,
-          duration: file.type.startsWith('video/') || file.type.startsWith('audio/') ? 0 : 0, // Add default duration
+          duration:
+            file.type.startsWith("video/") || file.type.startsWith("audio/")
+              ? 0
+              : 0, // Add default duration
         };
       })
     );
@@ -217,7 +247,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       timestamp: new Date().toISOString(),
       attachments: uploadedAttachments,
       reactions: [],
-      replyTo: replyingTo?.id,
+      replyTo: replyingTo ? {
+        id: replyingTo.id,
+        authorId: replyingTo.authorId,
+        content: replyingTo.content
+      } : null,
       edited: false,
       deleted: false,
       mentions: [],

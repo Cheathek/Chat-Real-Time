@@ -63,7 +63,11 @@ export interface Message {
   readBy: string[];
   mentions: string[];
   pinned: boolean;
-  replyTo?: string;
+  replyTo?: {
+    id: string;
+    authorId: string;
+    content: string;
+  } | null;
 }
 
 export interface MessageReaction {

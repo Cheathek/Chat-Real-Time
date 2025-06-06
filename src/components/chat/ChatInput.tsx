@@ -149,8 +149,17 @@ const ChatInput = () => {
       {replyingTo && (
         <div className="flex items-center justify-between px-2 py-1 bg-[#3F4147] rounded-t text-xs text-gray-300">
           <div className="flex items-center gap-2">
-            {/* <Reply className="w-4 h-4" /> */}
-            <span>Replying to {replyingTo.authorId}</span>
+            <div className="flex flex-col">
+              <span className="text-[#DCDDDE]">
+                Replying to{" "}
+                <span className="text-[#5865F2] font-medium">
+                  {replyingTo.username}
+                </span>
+              </span>
+              <span className="text-gray-400 text-xs truncate max-w-[300px]">
+                {replyingTo.content}
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setReplyingTo(null)}

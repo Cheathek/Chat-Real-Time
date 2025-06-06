@@ -97,6 +97,18 @@ const ChatMessages = () => {
     );
   };
 
+  const scrollToMessage = (messageId: string) => {
+    const element = document.getElementById(`message-${messageId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Optional: Add highlight effect
+      element.classList.add("bg-opacity-20", "bg-[#5865F2]");
+      setTimeout(() => {
+        element.classList.remove("bg-opacity-20", "bg-[#5865F2]");
+      }, 2000);
+    }
+  };
+
   const renderMessage = (message: Message | DirectMessage) => {
     const author = getUserById(message.authorId);
     const isOwnMessage = user?.id === message.authorId;
@@ -107,9 +119,18 @@ const ChatMessages = () => {
         attachment.type.startsWith("audio/")
     );
 
+    // Get replied message details if exists
+    const repliedMessage = message.replyTo
+      ? {
+          author: getUserById(message.replyTo.authorId),
+          content: message.replyTo.content,
+        }
+      : null;
+
     return (
       <MessageContextMenu message={message}>
         <div
+          id={`message-${message.id}`}
           key={message.id}
           className={`px-4 py-1 group ${
             isOwnMessage ? "flex flex-row-reverse" : "flex"
@@ -126,55 +147,67 @@ const ChatMessages = () => {
               isOwnMessage ? "justify-end" : ""
             }`}
           >
-            {/* Main message bubble container */}
-            <div
-              className={`max-w-[75%] px-2 py-1.5 ${
-                !hasMediaAttachment && // Only apply background if no media attachments
-                (isOwnMessage ? "bg-[#5865F2]" : "bg-[#40444B]")
-              } rounded-lg`}
-            >
-              {/* Username for others' messages */}
-              {!isOwnMessage && (
-                <div className="text-sm font-semibold text-[#DCDDDE] mb-1">
-                  {author.username}
-                </div>
-              )}
-
-              {/* Message content */}
-              <div className="text-sm text-[#DCDDDE]">{message.content}</div>
-
-              {/* Attachments - rendered without background */}
-              {message.attachments.length > 0 && (
-                <div className="mt-2 space-y-2">
-                  {message.attachments.map((attachment, index) => (
-                    <div key={index} className="inline-block">
-                      {renderAttachment(attachment)}
+            <div className="relative max-w-[65%]">
+              {/* Main Message Bubble with integrated reply */}
+              <div
+                className={`${
+                  !hasMediaAttachment &&
+                  (isOwnMessage ? "bg-[#5865F2]" : "bg-[#40444B]")
+                } rounded-lg pt-2`}
+              >
+                {/* Reply Preview Inside Message Bubble */}
+                {repliedMessage && (
+                  <div
+                    onClick={() =>
+                      message.replyTo?.id && scrollToMessage(message.replyTo.id)
+                    }
+                    className="flex mx-2 mb-2 cursor-pointer group"
+                  >
+                    <div className="w-0.5 bg-[#00a8fc] rounded-l" />
+                    <div className="flex-1 bg-[#1E1F22] bg-opacity-70 px-2 py-1 rounded-r hover:bg-opacity-90 transition-colors">
+                      <div className="flex flex-col">
+                        <span className="text-[#00a8fc] text-xs font-medium">
+                          {repliedMessage.author.username}
+                        </span>
+                        <span className="text-gray-400 text-xs truncate">
+                          {repliedMessage.content || "Attachment"}
+                        </span>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Message Reactions */}
-              {message.reactions.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {message.reactions.map((reaction, index) => (
-                    <div
-                      key={index}
-                      className="bg-[#3E4147] hover:bg-[#45494F] rounded-full px-2 py-0.5 text-xs flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>{reaction.emoji}</span>
-                      <span className="text-gray-300">{reaction.count}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Timestamp */}
-              <div className="text-xs text-gray-400 mt-1 text-right">
-                {message.edited && (
-                  <span className="text-gray-500 mr-1">(edited)</span>
+                  </div>
                 )}
-                {formatMessageTime(message.timestamp)}
+
+                {/* Message Content */}
+                <div className="px-4 py-2">
+                  {!isOwnMessage && (
+                    <div className="text-sm font-semibold text-[#DCDDDE] mb-1">
+                      {author.username}
+                    </div>
+                  )}
+
+                  <div className="text-sm text-[#DCDDDE] whitespace-pre-wrap break-words">
+                    {message.content}
+                  </div>
+
+                  {/* Attachments */}
+                  {message.attachments.length > 0 && (
+                    <div className="mt-2 space-y-2">
+                      {message.attachments.map((attachment, index) => (
+                        <div key={index} className="inline-block">
+                          {renderAttachment(attachment)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Timestamp */}
+                  <div className="text-xs text-gray-400 mt-1 text-right">
+                    {message.edited && (
+                      <span className="text-gray-500 mr-1">(edited)</span>
+                    )}
+                    {formatMessageTime(message.timestamp)}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
