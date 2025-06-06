@@ -1,4 +1,4 @@
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare } from "lucide-react";
 
 interface LogoProps {
   className?: string;

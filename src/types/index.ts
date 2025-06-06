@@ -3,7 +3,7 @@ export interface User {
   username: string;
   email: string;
   avatar: string;
-  status: 'online' | 'offline' | 'idle' | 'dnd';
+  status: "online" | "offline" | "idle" | "dnd";
   lastSeen: string;
 }
 
@@ -21,7 +21,7 @@ export interface Server {
 export interface Channel {
   id: string;
   name: string;
-  type: 'text' | 'voice' | 'announcement';
+  type: "text" | "voice" | "announcement";
   serverId: string;
   position: number;
   isPrivate: boolean;
@@ -63,6 +63,11 @@ export interface Message {
   readBy: string[];
   mentions: string[];
   pinned: boolean;
+  replyTo?: {
+    id: string;
+    authorId: string;
+    content: string;
+  } | null;
 }
 
 export interface MessageReaction {
@@ -72,6 +77,7 @@ export interface MessageReaction {
 }
 
 export interface Attachment {
+  duration: number;
   id: string;
   name: string;
   url: string;
@@ -79,6 +85,6 @@ export interface Attachment {
   size: number;
 }
 
-export interface DirectMessage extends Omit<Message, 'channelId'> {
+export interface DirectMessage extends Omit<Message, "channelId"> {
   recipientId: string;
 }

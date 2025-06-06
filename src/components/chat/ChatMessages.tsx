@@ -3,19 +3,19 @@ import { format } from "date-fns";
 import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
 import { mockUsers } from "@/lib/mockData";
-import { useTranslation } from "@/lib/i18n";
-import { Check, Pencil, FileIcon, Image, Music, Video } from "lucide-react";
+import { FileIcon } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { Message, DirectMessage, User, Attachment } from "@/types";
+import AttachmentPreview from "./AttachmentPreview";
+import MessageContextMenu from "./MessageContextMenu";
+import CustomAudioPlayer from "./CustomAudioPlayer";
 
 const ChatMessages = () => {
-  const { t } = useTranslation();
   const { user } = useAuth();
   const { messages, directMessages, activeChannel, activeDmUser, typingUsers } =
     useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Function to get user from ID
   const getUserById = (id: string): User => {
     return (
       mockUsers.find((user) => user.id === id) || {
@@ -29,28 +29,14 @@ const ChatMessages = () => {
     );
   };
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, directMessages]);
 
-  // Format message timestamp
   const formatMessageTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) {
-      return `Today at ${format(date, "h:mm a")}`;
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return `Yesterday at ${format(date, "h:mm a")}`;
-    } else {
-      return format(date, "MM/dd/yyyy h:mm a");
-    }
+    return format(new Date(timestamp), "h:mm a");
   };
 
-  // Render attachment preview
   const renderAttachment = (attachment: Attachment) => {
     const isImage = attachment.type.startsWith("image/");
     const isVideo = attachment.type.startsWith("video/");
@@ -58,201 +44,213 @@ const ChatMessages = () => {
 
     if (isImage) {
       return (
-        <div className="mt-2 rounded-lg overflow-hidden">
+        <AttachmentPreview attachment={attachment}>
           <img
             src={attachment.url}
             alt={attachment.name}
-            className="max-w-md max-h-96 object-contain"
+            className="max-w-full sm:max-w-[400px] max-h-[300px] rounded-lg object-contain cursor-pointer 
+            hover:opacity-90 transition-opacity"
+            loading="lazy"
           />
-        </div>
+        </AttachmentPreview>
       );
     }
 
     if (isVideo) {
       return (
-        <div className="mt-2 rounded-lg overflow-hidden">
-          <video controls className="max-w-md max-h-96">
+        <AttachmentPreview attachment={attachment}>
+          <video
+            controls
+            preload="metadata"
+            className="max-w-full sm:max-w-[400px] max-h-[300px] rounded-lg cursor-pointer 
+            hover:opacity-90 transition-opacity"
+          >
             <source src={attachment.url} type={attachment.type} />
             Your browser does not support the video tag.
           </video>
-        </div>
+        </AttachmentPreview>
       );
     }
 
     if (isAudio) {
       return (
-        <div className="mt-2">
-          <audio controls className="w-full max-w-md">
-            <source src={attachment.url} type={attachment.type} />
-            Your browser does not support the audio tag.
-          </audio>
+        <div className="w-full max-w-[350px] min-w-[200px]">
+          <CustomAudioPlayer
+            src={attachment.url}
+            title={attachment.name}
+            fileSize={attachment.size}
+            className="w-full"
+          />
         </div>
       );
     }
-
-    // Default file attachment
+    // For other file types
     return (
-      <a
-        href={attachment.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-2 flex items-center gap-2 p-2 rounded-lg bg-[#2E3035] hover:bg-[#36393F] transition-colors"
-      >
-        <FileIcon className="w-6 h-6 text-[#5865F2]" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{attachment.name}</p>
-          <p className="text-xs text-gray-400">
-            {Math.round(attachment.size / 1024)} KB
-          </p>
-        </div>
-      </a>
-    );
-  };
-
-  // Render message component
-  const renderMessage = (
-    message: Message | DirectMessage,
-    isDirectMessage: boolean = false
-  ) => {
-    const author = getUserById(message.authorId);
-    const isOwnMessage = user?.id === message.authorId;
-
-    return (
-      <div
-        key={message.id}
-        className={`px-4 py-2 hover:bg-[#2E3035] group ${
-          isOwnMessage ? "flex flex-row-reverse" : "flex"
-        }`}
-      >
-        <div
-          className={`mr-3 mt-1 flex-shrink-0 ${
-            isOwnMessage ? "ml-3 mr-0" : ""
-          }`}
+      <div className="flex items-center gap-2 p-2 bg-[#2E3035] rounded-lg max-w-full sm:max-w-[350px]">
+        <FileIcon size={16} className="text-[#5865F2] flex-shrink-0" />
+        <a
+          href={attachment.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-[#DCDDDE] hover:underline truncate"
         >
-          <UserAvatar user={author} />
-        </div>
-        <div className={`flex-1 min-w-0 ${isOwnMessage ? "items-end" : ""}`}>
-          <div
-            className={`flex items-baseline ${
-              isOwnMessage ? "flex-row-reverse" : ""
-            }`}
-          >
-            <h4
-              className={`font-medium text-white ${
-                isOwnMessage ? "ml-2" : "mr-2"
-              }`}
-            >
-              {author.username}
-            </h4>
-            <span className="text-xs text-gray-400">
-              {formatMessageTime(message.timestamp)}
-            </span>
-            <div
-              className={`opacity-0 group-hover:opacity-100 transition-opacity ${
-                isOwnMessage ? "mr-2" : "ml-2"
-              }`}
-            >
-              <button className="text-gray-400 hover:text-white p-1">
-                <Pencil size={14} />
-              </button>
-            </div>
-          </div>
-          <div
-            className={`text-sm text-gray-300 ${
-              isOwnMessage ? "text-right" : ""
-            }`}
-          >
-            {message.content}
-            {message.edited && (
-              <span className="text-xs text-gray-400 ml-1">(edited)</span>
-            )}
-          </div>
-
-          {/* Attachments */}
-          {message.attachments.length > 0 && (
-            <div
-              className={`flex flex-col ${
-                isOwnMessage ? "items-end" : "items-start"
-              }`}
-            >
-              {message.attachments.map((attachment, index) => (
-                <div key={index}>{renderAttachment(attachment)}</div>
-              ))}
-            </div>
-          )}
-
-          {/* Message Reactions */}
-          {message.reactions.length > 0 && (
-            <div
-              className={`flex flex-wrap gap-2 mt-1 ${
-                isOwnMessage ? "justify-end" : "justify-start"
-              }`}
-            >
-              {message.reactions.map((reaction, index) => (
-                <div
-                  key={index}
-                  className="bg-[#2E3035] hover:bg-[#36393F] rounded-full px-2 py-1 text-xs flex items-center gap-1 cursor-pointer"
-                >
-                  <span>{reaction.emoji}</span>
-                  <span className="text-gray-400">{reaction.count}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Read receipts for DMs */}
-          {isDirectMessage &&
-            (message as DirectMessage).readBy.includes(
-              (message as DirectMessage).recipientId
-            ) && (
-              <div
-                className={`flex items-center mt-1 text-gray-400 ${
-                  isOwnMessage ? "justify-end" : "justify-start"
-                }`}
-              >
-                <Check size={12} className="mr-1" />
-                <span className="text-xs">{t("chat.read")}</span>
-              </div>
-            )}
-        </div>
+          {attachment.name}
+        </a>
       </div>
     );
   };
 
-  // Get typing users for the current channel
+  const scrollToMessage = (messageId: string) => {
+    const element = document.getElementById(`message-${messageId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Optional: Add highlight effect
+      element.classList.add("bg-opacity-20", "bg-[#5865F2]");
+      setTimeout(() => {
+        element.classList.remove("bg-opacity-20", "bg-[#5865F2]");
+      }, 2000);
+    }
+  };
+
+  const renderMessage = (message: Message | DirectMessage) => {
+    const author = getUserById(message.authorId);
+    const isOwnMessage = user?.id === message.authorId;
+    const hasMediaAttachment = message.attachments.some(
+      (attachment) =>
+        attachment.type.startsWith("image/") ||
+        attachment.type.startsWith("video/") ||
+        attachment.type.startsWith("audio/")
+    );
+
+    // Get replied message details if exists
+    const repliedMessage = message.replyTo
+      ? {
+          author: getUserById(message.replyTo.authorId),
+          content: message.replyTo.content,
+        }
+      : null;
+
+    return (
+      <MessageContextMenu message={message}>
+        <div
+          id={`message-${message.id}`}
+          key={message.id}
+          className={`px-4 py-1 group ${
+            isOwnMessage ? "flex flex-row-reverse" : "flex"
+          }`}
+        >
+          <div
+            className={`flex-shrink-0 ${isOwnMessage ? "ml-2" : "mr-2"} mt-1`}
+          >
+            <UserAvatar user={author} size="sm" />
+          </div>
+
+          <div
+            className={`flex-1 min-w-0 flex ${
+              isOwnMessage ? "justify-end" : ""
+            }`}
+          >
+            <div className="relative max-w-[85%] sm:max-w-[75%] md:max-w-[65%]">
+              {/* Main Message Bubble with integrated reply */}
+              <div
+                className={`${
+                  !hasMediaAttachment &&
+                  (isOwnMessage ? "bg-[#5865F2]" : "bg-[#40444B]")
+                } rounded-lg pt-2 overflow-hidden`}
+              >
+                {/* Reply Preview Inside Message Bubble */}
+                {repliedMessage && (
+                  <div
+                    onClick={() =>
+                      message.replyTo?.id && scrollToMessage(message.replyTo.id)
+                    }
+                    className="flex mx-2 mb-2 cursor-pointer group max-w-full"
+                  >
+                    <div className="w-0.5 bg-[#00a8fc] rounded-l flex-shrink-0" />
+                    <div className="flex-1 bg-[#1E1F22] bg-opacity-70 px-2 py-1.5 rounded-r hover:bg-opacity-90 transition-colors min-w-0">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[#00a8fc] text-xs font-medium truncate">
+                          {repliedMessage.author.username}
+                        </span>
+                        <span className="text-gray-400 text-xs line-clamp-1">
+                          {repliedMessage.content || "Attachment"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Message Content */}
+                <div className="px-4 py-2">
+                  {!isOwnMessage && (
+                    <div className="text-sm font-semibold text-[#DCDDDE] mb-1">
+                      {author.username}
+                    </div>
+                  )}
+
+                  <div className="text-sm text-[#DCDDDE] whitespace-pre-wrap break-words">
+                    {message.content}
+                  </div>
+
+                  {/* Attachments */}
+                  {message.attachments.length > 0 && (
+                    <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-1">
+                      {message.attachments.map((attachment, index) => (
+                        <div key={index} className="w-full">
+                          {renderAttachment(attachment)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Timestamp */}
+                  <div className="text-xs text-gray-400 mt-1 text-right">
+                    {message.edited && (
+                      <span className="text-white-500 mr-1">(edited)</span>
+                    )}
+                    {formatMessageTime(message.timestamp)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </MessageContextMenu>
+    );
+  };
+
   const currentTypingUsers = activeChannel
     ? (typingUsers[activeChannel.id] || []).map((id) => getUserById(id))
     : [];
 
-  // Render typing indicator
   const renderTypingIndicator = () => {
     if (currentTypingUsers.length === 0) return null;
 
     const names = currentTypingUsers.map((user) => user.username).join(", ");
-
     return (
-      <div className="px-4 py-2 text-gray-400 text-sm italic text-right">
-        {names}{" "}
-        {currentTypingUsers.length === 1
-          ? t("chat.typing")
-          : t("chat.areTyping")}
-        <span className="inline-block animate-pulse">...</span>
+      <div className="px-4 py-1 text-gray-400 text-xs italic">
+        <div className="flex items-center">
+          <div className="bg-[#2E3035] rounded-full px-2 py-1">
+            {names}{" "}
+            {currentTypingUsers.length === 1 ? "is typing" : "are typing"}
+            <span className="inline-block animate-pulse ml-1">...</span>
+          </div>
+        </div>
       </div>
     );
   };
 
-  // Determine which messages to show
   const displayMessages = activeDmUser ? directMessages : messages;
 
   if (!activeChannel && !activeDmUser) {
     return (
       <div className="flex-1 overflow-y-auto bg-[#313338] flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-md text-center">
-          <h3 className="text-xl font-bold mb-2">
-            {t("directMessages.title")}
+          <h3 className="text-xl font-bold text-[#DCDDDE] mb-2">
+            Direct Messages
           </h3>
           <p className="text-gray-400 mb-4">
-            {t("directMessages.startConversation")}
+            Select a friend to start a conversation
           </p>
         </div>
       </div>
@@ -260,38 +258,36 @@ const ChatMessages = () => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#313338] scrollbar-thin scrollbar-thumb-[#202225] scrollbar-track-transparent">
+    <div className="flex-1 overflow-y-auto bg-[#313338] scrollbar-thin">
+      {/* Date separator */}
+      <div className="px-4 py-2 sticky top-0 z-10 bg-[#313338] shadow-sm">
+        <div className="flex items-center justify-center">
+          <div className="h-px bg-[#3F4147] flex-1" />
+          <span className="px-2 text-xs text-gray-400">
+            {format(new Date(), "MMMM d, yyyy")}
+          </span>
+          <div className="h-px bg-[#3F4147] flex-1" />
+        </div>
+      </div>
+
+      {/* Messages */}
       {displayMessages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full p-6">
           <div className="w-full max-w-md text-center">
-            <h3 className="text-xl font-bold mb-2">
+            <h3 className="text-xl font-bold text-[#DCDDDE] mb-2">
               {activeDmUser
-                ? `${t("chat.startConversationWith")} ${activeDmUser.username}`
-                : `${t("chat.welcome")} #${activeChannel?.name}`}
+                ? `Start a conversation with ${activeDmUser.username}`
+                : `Welcome to #${activeChannel?.name}`}
             </h3>
-            <p className="text-gray-400">{t("chat.noMessages")}</p>
+            <p className="text-gray-400">
+              No messages here yet. Start the conversation!
+            </p>
           </div>
         </div>
       ) : (
         <>
-          {/* Date separator */}
-          <div className="px-4 py-2 sticky top-0 z-10 bg-[#313338] shadow-sm">
-            <div className="flex items-center justify-center">
-              <div className="h-px bg-[#3F4147] flex-1" />
-              <span className="px-2 text-xs text-gray-400">
-                {format(new Date(), "MMMM d, yyyy")}
-              </span>
-              <div className="h-px bg-[#3F4147] flex-1" />
-            </div>
-          </div>
-
-          {/* Messages */}
-          {displayMessages.map((msg) => renderMessage(msg, !!activeDmUser))}
-
-          {/* Typing indicator */}
+          {displayMessages.map((msg) => renderMessage(msg))}
           {renderTypingIndicator()}
-
-          {/* Invisible element to scroll to */}
           <div ref={messagesEndRef} />
         </>
       )}
