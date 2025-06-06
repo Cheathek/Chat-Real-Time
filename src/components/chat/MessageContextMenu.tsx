@@ -9,6 +9,7 @@ import { Pencil, Trash, Reply, Copy, MoreVertical } from "lucide-react";
 import { Message, DirectMessage } from "@/types";
 import { useChat } from "@/context/ChatContext";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface MessageContextMenuProps {
   message: Message | DirectMessage;
@@ -16,6 +17,7 @@ interface MessageContextMenuProps {
 }
 
 const MessageContextMenu = ({ message, children }: MessageContextMenuProps) => {
+  const { toast } = useToast();
   const [, setIsOpen] = useState(false);
   const { user } = useAuth();
   const {
@@ -34,9 +36,42 @@ const MessageContextMenu = ({ message, children }: MessageContextMenuProps) => {
   };
 
   const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this message?")) {
-      deleteMessage(message.id);
-    }
+    let toastDismiss: () => void;
+
+    const { dismiss } = toast({
+      title: "Delete Message",
+      description: "Are you sure you want to delete this message?",
+      duration: 5000,
+      variant: "destructive",
+      className: "bg-[#313338] border-[#2f3136] text-gray-100",
+      action: (
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              deleteMessage(message.id);
+              toastDismiss?.();
+            }}
+            className="px-3 py-1 text-xs font-medium text-white bg-red-500 rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toastDismiss?.()}
+            className="px-3 py-1 text-xs font-medium text-white bg-[#2b2d31] rounded hover:bg-[#2b2d31]/90"
+          >
+            Cancel
+          </button>
+        </div>
+      ),
+      onOpenChange: (open: boolean) => {
+        if (!open) {
+          toastDismiss?.();
+        }
+      },
+    });
+
+    // Store the dismiss function
+    toastDismiss = dismiss;
   };
 
   const handleReply = () => {
@@ -46,6 +81,12 @@ const MessageContextMenu = ({ message, children }: MessageContextMenuProps) => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content);
+    toast({
+      title: "Copied!",
+      description: "Message copied to clipboard",
+      duration: 2000,
+      className: "bg-[#313338] border-[#2f3136] text-gray-100",
+    });
   };
 
   const handleClick = (e: React.MouseEvent) => {
