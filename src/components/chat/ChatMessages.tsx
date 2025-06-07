@@ -9,6 +9,7 @@ import { Message, DirectMessage, User, Attachment } from "@/types";
 import AttachmentPreview from "./AttachmentPreview";
 import MessageContextMenu from "./MessageContextMenu";
 import CustomAudioPlayer from "./CustomAudioPlayer";
+import CustomVideoPlayer from "./CustomVideoPlayer";
 
 const ChatMessages = () => {
   const { user } = useAuth();
@@ -58,17 +59,14 @@ const ChatMessages = () => {
 
     if (isVideo) {
       return (
-        <AttachmentPreview attachment={attachment}>
-          <video
-            controls
-            preload="metadata"
-            className="max-w-full sm:max-w-[400px] max-h-[300px] rounded-lg cursor-pointer 
-            hover:opacity-90 transition-opacity"
-          >
-            <source src={attachment.url} type={attachment.type} />
-            Your browser does not support the video tag.
-          </video>
-        </AttachmentPreview>
+        <div className="w-full max-w-[400px]">
+          <CustomVideoPlayer
+            src={attachment.url}
+            title={attachment.name}
+            fileSize={attachment.size}
+            className="w-full"
+          />
+        </div>
       );
     }
 
