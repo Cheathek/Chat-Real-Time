@@ -131,43 +131,44 @@ const ChatMessages = () => {
       : null;
 
     return (
-      <MessageContextMenu message={message}>
+      <MessageContextMenu key={message.id} message={message}>
         <div
           id={`message-${message.id}`}
-          key={message.id}
           className={`px-4 py-1 group ${
             isOwnMessage ? "flex flex-row-reverse" : "flex"
           }`}
         >
-          <div
-            className={`flex-shrink-0 ${isOwnMessage ? "ml-2" : "mr-2"} mt-1`}
-          >
-            <UserAvatar user={author} size="sm" />
-          </div>
+          {/* Only show avatar for other users' messages */}
+          {!isOwnMessage && (
+            <div className={`flex-shrink-0 mr-2 mt-12`}>
+              <UserAvatar user={author} size="sm" />
+            </div>
+          )}
 
+          {/* Rest of the message content remains the same */}
           <div
             className={`flex-1 min-w-0 flex ${
               isOwnMessage ? "justify-end" : ""
             }`}
           >
-            <div className="relative max-w-[85%] sm:max-w-[75%] md:max-w-[65%]">
-              {/* Main Message Bubble with integrated reply */}
+            <div className="relative max-w-fit">
+              {/* Message bubble */}
               <div
                 className={`${
                   !hasMediaAttachment &&
                   (isOwnMessage ? "bg-[#5865F2]" : "bg-[#40444B]")
-                } rounded-lg pt-2 overflow-hidden`}
+                } rounded-xl overflow-hidden`}
               >
-                {/* Reply Preview Inside Message Bubble */}
+                {/* Reply preview remains the same */}
                 {repliedMessage && (
                   <div
                     onClick={() =>
                       message.replyTo?.id && scrollToMessage(message.replyTo.id)
                     }
-                    className="flex mx-2 mb-2 cursor-pointer group max-w-full"
+                    className="flex mx-2 mt-2 cursor-pointer group max-w-full"
                   >
                     <div className="w-0.5 bg-[#00a8fc] rounded-l flex-shrink-0" />
-                    <div className="flex-1 bg-[#1E1F22] bg-opacity-70 px-2 py-1.5 rounded-r hover:bg-opacity-90 transition-colors min-w-0">
+                    <div className="flex-1 bg-[#1E1F22] bg-opacity-70 px-2 py-1 rounded-r hover:bg-opacity-90 transition-colors min-w-0">
                       <div className="flex flex-col gap-0.5">
                         <span className="text-[#00a8fc] text-xs font-medium truncate">
                           {repliedMessage.author.username}
@@ -180,19 +181,28 @@ const ChatMessages = () => {
                   </div>
                 )}
 
-                {/* Message Content */}
-                <div className="px-4 py-2">
+                {/* Updated message content layout */}
+                <div className="px-3 py-1">
                   {!isOwnMessage && (
-                    <div className="text-sm font-semibold text-[#DCDDDE] mb-1">
+                    <div className="text-sm font-semibold text-[#00a8fc] mb-1">
                       {author.username}
                     </div>
                   )}
 
-                  <div className="text-sm text-[#DCDDDE] whitespace-pre-wrap break-words">
-                    {message.content}
+                  {/* Message content and timestamp wrapper */}
+                  <div className="flex justify-between items-end w-full">
+                    <div className="text-sm text-[#DCDDDE] mb-2 whitespace-pre-wrap break-words max-w-[85%]">
+                      {message.content}
+                    </div>
+                    <div className="text-xs text-gray-400 flex-shrink-0 ml-4 mt-5">
+                      {message.edited && (
+                        <span className="text-gray-400 mr-1">edited</span>
+                      )}
+                      {formatMessageTime(message.timestamp)}
+                    </div>
                   </div>
 
-                  {/* Attachments */}
+                  {/* Attachments section remains the same */}
                   {message.attachments.length > 0 && (
                     <div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-1">
                       {message.attachments.map((attachment, index) => (
@@ -202,14 +212,6 @@ const ChatMessages = () => {
                       ))}
                     </div>
                   )}
-
-                  {/* Timestamp */}
-                  <div className="text-xs text-gray-400 mt-1 text-right">
-                    {message.edited && (
-                      <span className="text-white-500 mr-1">(edited)</span>
-                    )}
-                    {formatMessageTime(message.timestamp)}
-                  </div>
                 </div>
               </div>
             </div>

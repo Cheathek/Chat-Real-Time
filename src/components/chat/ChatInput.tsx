@@ -53,44 +53,32 @@ const ChatInput = () => {
     }
   }, [message]);
 
-  // Handle typing indicator
+  // Auto-focus when replying or editing
   useEffect(() => {
-    if (message && !isTyping) {
-      setIsTyping(true);
+    if ((replyingTo || editingMessageId) && textareaRef.current) {
+      setTimeout(() => textareaRef.current?.focus(), 100);
     }
+  }, [replyingTo, editingMessageId]);
 
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    typingTimeoutRef.current = setTimeout(() => {
-      if (isTyping) {
-        setIsTyping(false);
-      }
-    }, 3000);
-
+  // Typing indicator
+  useEffect(() => {
+    if (message && !isTyping) setIsTyping(true);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 3000);
     return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [message, isTyping]);
 
-  // First, add this useEffect to handle viewport height adjustment
+  // Viewport height adjustment
   useEffect(() => {
     const handleResize = () => {
-      // Set viewport height without considering keyboard
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--vh", `${vh}px`);
     };
-
-    // Initial call
     handleResize();
-
-    // Add event listener
     window.addEventListener("resize", handleResize);
     window.addEventListener("orientationchange", handleResize);
-
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("orientationchange", handleResize);
@@ -99,8 +87,7 @@ const ChatInput = () => {
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    const maxSize = 50 * 1024 * 1024; // 50MB limit
-
+    const maxSize = 50 * 1024 * 1024;
     const validFiles = files.filter((file) => {
       if (file.size > maxSize) {
         toast({
@@ -112,31 +99,22 @@ const ChatInput = () => {
       }
       return true;
     });
-
     setAttachments((prev) => [...prev, ...validFiles]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const removeAttachment = (index: number) => {
+  const removeAttachment = (index: number) =>
     setAttachments((prev) => prev.filter((_, i) => i !== index));
-  };
 
   const handleSendMessage = async () => {
     if (!message?.trim() && attachments.length === 0) return;
-
     if (editingMessageId) {
       updateMessage(editingMessageId, message);
       setEditingMessageId(null);
     } else {
-      await sendMessage({
-        content: message,
-        attachments: attachments,
-      });
+      await sendMessage({ content: message, attachments });
       setReplyingTo(null);
     }
-
     setMessage("");
     setAttachments([]);
   };
@@ -152,23 +130,22 @@ const ChatInput = () => {
       e.preventDefault();
       handleSendMessage();
     }
-    if (e.key === "Escape" && editingMessageId) {
-      handleCancelEdit();
-    }
+    if (e.key === "Escape" && editingMessageId) handleCancelEdit();
   };
 
-  if (!activeChannel && !activeDmUser) {
-    return null;
-  }
+  const getPlaceholderText = () => {
+    if (editingMessageId) return "Edit your message...";
+    if (replyingTo) return `Reply to ${replyingTo.username}...`;
+    if (activeDmUser) return `Message @${activeDmUser.username}`;
+    if (activeChannel) return `Message #${activeChannel.name}`;
+    return "Type a message...";
+  };
 
-  const recipientName = activeDmUser
-    ? activeDmUser.username
-    : `#${activeChannel?.name}`;
+  if (!activeChannel && !activeDmUser) return null;
 
   return (
     <div className="sticky bottom-0 inset-x-0 z-10 bg-[#313338] border-t border-[#232428]">
       <div className="relative flex flex-col max-h-[50vh] overflow-y-auto px-2 md:px-4 py-2 md:py-3">
-        {/* Show reply indicator */}
         {replyingTo && (
           <div className="flex items-center justify-between px-2 py-1 bg-[#3F4147] rounded-t text-xs text-gray-300">
             <div className="flex items-center gap-2">
@@ -196,11 +173,9 @@ const ChatInput = () => {
         {editingMessageId && (
           <div className="flex items-center justify-between px-2 py-1 bg-[#3F4147] rounded-t text-xs text-gray-300">
             <div className="flex flex-col gap-1">
-              <div className="flex items-center">
-                <span className="text-[#5865F2] font-medium">
-                  Editing message
-                </span>
-              </div>
+              <span className="text-[#5865F2] font-medium">
+                Editing message
+              </span>
               <div className="text-xs text-gray-400 break-words max-w-[300px] line-clamp-2">
                 {originalMessage || "No message content"}
               </div>
@@ -214,7 +189,6 @@ const ChatInput = () => {
           </div>
         )}
 
-        {/* Attachment previews */}
         {attachments.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2 overflow-x-auto">
             {attachments.map((file, index) => (
@@ -237,35 +211,28 @@ const ChatInput = () => {
         )}
 
         <div className="relative flex items-center min-h-[44px]">
-          {/* Left side buttons */}
           <div className="absolute left-2 flex items-center space-x-1">
             <button className="text-gray-400 hover:text-gray-100 p-1 md:p-1.5 rounded-full hover:bg-[#36393F]">
               <PlusCircle size={18} className="w-4 h-4 md:w-5 md:h-5" />
             </button>
           </div>
 
-          {/* Textarea */}
           <textarea
             ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder={
-              editingMessageId
-                ? "Edit your message..."
-                : `Message ${recipientName}`
-            }
+            placeholder={getPlaceholderText()}
             className={cn(
               "w-full resize-none bg-[#383A40] text-gray-100 rounded-md",
               "pl-10 pr-24 py-2 md:py-2.5 outline-none max-h-[200px]",
               "placeholder:text-gray-400 focus:ring-1 focus:ring-blue-500",
               "text-sm md:text-base",
-              editingMessageId && "rounded-t-none"
+              (editingMessageId || replyingTo) && "rounded-t-none"
             )}
             rows={1}
           />
 
-          {/* Right side icons */}
           <div className="absolute right-2 flex items-center space-x-1 md:space-x-2">
             <input
               ref={fileInputRef}
@@ -274,21 +241,16 @@ const ChatInput = () => {
               onChange={handleFileSelect}
               className="hidden"
             />
-
-            {/* Mobile: Only show essential icons */}
             <div className="hidden sm:flex items-center space-x-1 md:space-x-2">
               <IconButton icon={Gift} tooltip="Nitro Gift" />
               <IconButton icon={GIF} tooltip="GIF Picker" />
             </div>
-
-            {/* Always show these icons */}
             <IconButton
               icon={Paperclip}
               tooltip="Attach File"
               onClick={() => fileInputRef.current?.click()}
             />
             <IconButton icon={Smile} tooltip="Emoji" />
-
             {(message.trim().length > 0 || attachments.length > 0) && (
               <IconButton
                 icon={SendHorizonal}
@@ -304,19 +266,17 @@ const ChatInput = () => {
   );
 };
 
-interface IconButtonProps {
-  icon: LucideIcon;
-  tooltip: string;
-  onClick?: () => void;
-  className?: string;
-}
-
 const IconButton = ({
   icon: Icon,
   tooltip,
   onClick,
   className,
-}: IconButtonProps) => (
+}: {
+  icon: LucideIcon;
+  tooltip: string;
+  onClick?: () => void;
+  className?: string;
+}) => (
   <TooltipProvider>
     <Tooltip>
       <TooltipTrigger asChild>
