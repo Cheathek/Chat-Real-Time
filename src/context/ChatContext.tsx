@@ -78,6 +78,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     authorId: string;
   } | null>(null);
 
+  const getUsernameById = (userId: string): string => {
+    const dmUser = directMessageUsers.find((u) => u.id === userId);
+    if (dmUser) return dmUser.username;
+
+    return `User ${userId}`;
+  };
+
   const setReplyingTo = (message: Message | DirectMessage | null) => {
     if (!message) {
       setInternalReplyingTo(null);
@@ -85,9 +92,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     }
     setInternalReplyingTo({
       id: message.id,
-      username: 'username', // You need to get the username from your user data
+      username: getUsernameById(message.authorId), // Get real username
       content: message.content,
-      authorId: message.authorId
+      authorId: message.authorId,
     });
   };
 
@@ -247,11 +254,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       timestamp: new Date().toISOString(),
       attachments: uploadedAttachments,
       reactions: [],
-      replyTo: replyingTo ? {
-        id: replyingTo.id,
-        authorId: replyingTo.authorId,
-        content: replyingTo.content
-      } : null,
+      replyTo: replyingTo
+        ? {
+            id: replyingTo.id,
+            authorId: replyingTo.authorId,
+            content: replyingTo.content,
+          }
+        : null,
       edited: false,
       deleted: false,
       mentions: [],

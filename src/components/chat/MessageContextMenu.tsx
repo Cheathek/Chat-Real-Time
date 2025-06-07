@@ -76,7 +76,6 @@ const MessageContextMenu = ({ message, children }: MessageContextMenuProps) => {
 
   const handleReply = () => {
     setReplyingTo(message);
-    setMessage(`@${message.authorId} `);
   };
 
   const handleCopy = () => {
