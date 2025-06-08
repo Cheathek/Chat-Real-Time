@@ -4,7 +4,7 @@ import { User, Server, Channel, Message, DirectMessage } from '@/types';
 export const mockUsers: User[] = [
   {
     id: '1',
-    username: 'johndoe',
+    username: 'Johndoe',
     email: 'john@example.com',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=johndoe',
     status: 'online',
@@ -12,7 +12,7 @@ export const mockUsers: User[] = [
   },
   {
     id: '2',
-    username: 'janedoe',
+    username: 'Janedoe',
     email: 'jane@example.com',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=janedoe',
     status: 'idle',
@@ -20,7 +20,7 @@ export const mockUsers: User[] = [
   },
   {
     id: '3',
-    username: 'bobsmith',
+    username: 'Bobsmith',
     email: 'bob@example.com',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=bobsmith',
     status: 'offline',
@@ -28,7 +28,7 @@ export const mockUsers: User[] = [
   },
   {
     id: '4',
-    username: 'alicejones',
+    username: 'Alicejones',
     email: 'alice@example.com',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alicejones',
     status: 'dnd',
@@ -36,7 +36,7 @@ export const mockUsers: User[] = [
   },
   {
     id: '5',
-    username: 'mikebrown',
+    username: 'Mikebrown',
     email: 'mike@example.com',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=mikebrown',
     status: 'online',

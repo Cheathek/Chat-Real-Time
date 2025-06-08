@@ -166,7 +166,7 @@ const ChatMessages = () => {
                     className="flex mx-2 mt-2 cursor-pointer group max-w-full"
                   >
                     <div className="w-0.5 bg-[#00a8fc] rounded-l flex-shrink-0" />
-                    <div className="flex-1 bg-[#1E1F22] bg-opacity-70 px-2 py-1 rounded-r hover:bg-opacity-90 transition-colors min-w-0">
+                    <div className="select-none flex-1 bg-[#1E1F22] bg-opacity-70 px-2 py-1 rounded-r hover:bg-opacity-90 transition-colors min-w-0">
                       <div className="flex flex-col gap-0.5">
                         <span className="text-[#00a8fc] text-xs font-medium truncate">
                           {repliedMessage.author.username}
@@ -182,7 +182,7 @@ const ChatMessages = () => {
                 {/* Updated message content layout */}
                 <div className="px-3 py-1">
                   {!isOwnMessage && (
-                    <div className="text-sm font-semibold text-[#00a8fc] mb-1">
+                    <div className="select-none text-sm font-semibold text-[#00a8fc] mb-1">
                       {author.username}
                     </div>
                   )}
@@ -192,7 +192,7 @@ const ChatMessages = () => {
                     <div className="text-sm text-[#DCDDDE] mb-2 whitespace-pre-wrap break-words max-w-[85%]">
                       {message.content}
                     </div>
-                    <div className="text-xs text-gray-400 flex-shrink-0 ml-4 mt-5">
+                    <div className="select-none text-xs text-gray-400 flex-shrink-0 ml-4 mt-5">
                       {message.edited && (
                         <span className="text-gray-400 mr-1">edited</span>
                       )}

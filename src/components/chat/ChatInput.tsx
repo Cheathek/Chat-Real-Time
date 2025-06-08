@@ -144,7 +144,7 @@ const ChatInput = () => {
   if (!activeChannel && !activeDmUser) return null;
 
   return (
-    <div className="sticky bottom-0 inset-x-0 z-10 bg-[#313338] border-t border-[#232428]">
+    <div className="select-none sticky bottom-0 inset-x-0 z-10 bg-[#313338] border-t border-[#232428]">
       <div className="relative flex flex-col max-h-[50vh] overflow-y-auto px-2 md:px-4 py-2 md:py-3">
         {replyingTo && (
           <div className="flex items-center justify-between px-2 py-1 bg-[#3F4147] rounded-t text-xs text-gray-300">

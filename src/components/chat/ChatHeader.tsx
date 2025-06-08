@@ -64,7 +64,7 @@ const ChatHeader = () => {
 
   return (
     <div className="h-12 px-3 flex items-center justify-between border-b border-[#232428] bg-[#313338]">
-      <div className="flex items-center">
+      <div className="select-none flex items-center">
         <Hash className="w-5 h-5 text-gray-400 mr-2" />
         <h3 className="font-semibold">{activeChannel?.name}</h3>
       </div>
